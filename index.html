@@ -11,22 +11,15 @@
       background-color: #000000;
       color: #ffffff;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       overflow: hidden;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    #intro {
-      text-align: center;
-    }
-
     h1 {
-      font-size: 3rem;
+      font-size: 2.5rem;
       margin-bottom: 1rem;
     }
 
@@ -48,7 +41,7 @@
     }
 
     #cameraContainer {
-      display: none;
+      display: flex;
       flex-direction: column;
       align-items: center;
     }
@@ -91,12 +84,9 @@
 </head>
 <body>
 
-  <div id="intro">
-    <h1>Do you want to travel to space?</h1>
-    <button id="launchButton">take off</button>
-  </div>
+  <h1 id="instructionText">Take a picture to travel</h1>
 
-  <div id="cameraContainer" class="hidden">
+  <div id="cameraContainer">
     <video id="video" autoplay></video>
     <button id="captureButton">take photo</button>
   </div>
@@ -110,76 +100,67 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const photo = document.getElementById('photo');
-    const intro = document.getElementById('intro');
-    const launchButton = document.getElementById('launchButton');
     const cameraContainer = document.getElementById('cameraContainer');
     const captureButton = document.getElementById('captureButton');
     const photoContainer = document.getElementById('photoContainer');
+    const instructionText = document.getElementById('instructionText');
 
     let stream = null;
 
     
-    launchButton.addEventListener('click', async () => {
-      intro.classList.add('hidden'); 
-      cameraContainer.classList.remove('hidden'); 
-
+    async function startCamera() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
-        cameraContainer.style.display = 'flex'; 
       } catch (err) {
         console.error('Error al acceder a la cámara: ', err);
       }
-    });
+    }
 
-    
+   
+    startCamera();
+
     captureButton.addEventListener('click', () => {
       const context = canvas.getContext('2d');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      
       const data = canvas.toDataURL('image/png');
-      
-      
       photo.setAttribute('src', data);
       photo.style.display = 'block'; 
       photo.style.borderRadius = '50%'; 
       photo.style.width = '150px'; 
       photo.style.height = '150px';
       photo.style.objectFit = 'cover'; 
-      
-      
-      cameraContainer.style.display = 'none'; 
 
       
+      cameraContainer.style.display = 'none';
+
+      
+      instructionText.style.display = 'none';
+
+     
       photoContainer.style.display = 'block';
 
       
       movePhotoImmediately();
-
-      
       movePhotoRandomly();
 
-      
-      video.srcObject.getTracks().forEach(track => track.stop()); 
+     
+      video.srcObject.getTracks().forEach(track => track.stop());
     });
 
-    
     function movePhotoImmediately() {
       const maxX = photoContainer.clientWidth - photo.clientWidth;
       const maxY = photoContainer.clientHeight - photo.clientHeight;
       const randomX = Math.random() * maxX;
       const randomY = Math.random() * maxY;
 
-      
       photo.style.transform = `translate(${randomX}px, ${randomY}px)`;
     }
 
-    
     function movePhotoRandomly() {
       setInterval(() => {
         const maxX = photoContainer.clientWidth - photo.clientWidth;
@@ -187,7 +168,6 @@
         const randomX = Math.random() * maxX;
         const randomY = Math.random() * maxY;
 
-        
         photo.style.transform = `translate(${randomX}px, ${randomY}px)`;
       }, 3000); 
     }
